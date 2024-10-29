@@ -22,17 +22,35 @@ var (
 type Enum uint
 
 var (
-	entities = map[string]controller.Enum{
-		"speed1":  controller.CmdSpeed1,
-		"speed2":  controller.CmdSpeed2,
-		"speed3":  controller.CmdSpeed3,
-		"away":    controller.CmdAway,
-		"auto":    controller.CmdAuto,
-		"timer15": controller.CmdTimer15,
-		"timer30": controller.CmdTimer30,
-		"timer60": controller.CmdTimer60,
+	entityIDs = map[controller.Enum]string{
+		controller.CmdSpeed1:  "speed1",
+		controller.CmdSpeed2:  "speed2",
+		controller.CmdSpeed3:  "speed3",
+		controller.CmdAway:    "away",
+		controller.CmdAuto:    "auto",
+		controller.CmdTimer15: "timer15",
+		controller.CmdTimer30: "timer30",
+		controller.CmdTimer60: "timer60",
 	}
+	prompts = map[controller.Enum]string{
+		controller.CmdSpeed1:  "Low ventilation",
+		controller.CmdSpeed2:  "Medium ventilation",
+		controller.CmdSpeed3:  "High ventilation",
+		controller.CmdAway:    "Away mode",
+		controller.CmdAuto:    "Automatic mode",
+		controller.CmdTimer15: "High ventilation (15 minutes)",
+		controller.CmdTimer30: "High ventilation (30 minutes)",
+		controller.CmdTimer60: "High ventilation (60 minutes)",
+	}
+	commands map[string]controller.Enum
 )
+
+func init() {
+	commands = make(map[string]controller.Enum)
+	for k, v := range entityIDs {
+		commands[v] = k
+	}
+}
 
 // MQTTManager is a singleton that encapsulates the MQTT client and .
 type MQTTManager struct {
@@ -116,7 +134,7 @@ func (s *MQTTManager) connectErrorHandler(err error) {
 func (s *MQTTManager) publishHandler(pr paho.PublishReceived) (bool, error) {
 	dc := controller.GetVentilationControllerService()
 	command := string(pr.Packet.Payload)
-	if cmd, ok := entities[command]; ok {
+	if cmd, ok := commands[command]; ok {
 		dc.SendCommand(cmd)
 	} else {
 		log.Error().Msgf("received unknown command on action topic: %s", command)
@@ -139,13 +157,12 @@ func (s *MQTTManager) disconnectHandler(d *paho.Disconnect) {
 	}
 }
 
-func (s *MQTTManager) entityPayload(entity string) map[string]interface{} {
-	unique_id := fmt.Sprintf("%s%s", config.GetMQTTID(), entity)
+func (s *MQTTManager) entityPayload(entity controller.Enum) map[string]interface{} {
 	payload := map[string]interface{}{
-		"unique_id":        unique_id,
+		"unique_id":        entityIDs[entity],
 		"command_topic":    s.actionTopic,
-		"command_template": entity,
-		"name":             unique_id,
+		"command_template": entityIDs[entity],
+		"name":             prompts[entity],
 		"retain":           true,
 		"device": map[string]interface{}{
 			"identifiers": []string{
@@ -157,7 +174,7 @@ func (s *MQTTManager) entityPayload(entity string) map[string]interface{} {
 	return payload
 }
 
-func (s *MQTTManager) publishEntityDiscoveryPayload(entity string) {
+func (s *MQTTManager) publishEntityDiscoveryPayload(entity controller.Enum) {
 	payload := s.entityPayload(entity)
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
@@ -165,7 +182,7 @@ func (s *MQTTManager) publishEntityDiscoveryPayload(entity string) {
 		return
 	}
 
-	topic := fmt.Sprintf("%s/button/%s%s/config", config.GetMQTTDiscoveryPrefix(), config.GetMQTTID(), entity)
+	topic := fmt.Sprintf("%s/button/%s%s/config", config.GetMQTTDiscoveryPrefix(), config.GetMQTTID(), entityIDs[entity])
 	message := &paho.Publish{
 		Topic:   topic,
 		Payload: payloadBytes,
@@ -180,7 +197,7 @@ func (s *MQTTManager) publishEntityDiscoveryPayload(entity string) {
 }
 
 func (s *MQTTManager) sendHomeAssistantAutodiscoveryPayload() {
-	for entity := range entities {
+	for entity := range entityIDs {
 		s.publishEntityDiscoveryPayload(entity)
 	}
 }
