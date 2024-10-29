@@ -142,7 +142,6 @@ func (s *MQTTManager) disconnectHandler(d *paho.Disconnect) {
 func (s *MQTTManager) entityPayload(entity string) map[string]interface{} {
 	unique_id := fmt.Sprintf("%s%s", config.GetMQTTID(), entity)
 	payload := map[string]interface{}{
-		"device_class":     "button",
 		"unique_id":        unique_id,
 		"command_topic":    s.actionTopic,
 		"command_template": entity,
