@@ -1,0 +1,27 @@
+# Test speed
+POST http://localhost:8000/speed
+x-api-key: test
+
+{
+    "speed": "low"
+}
+
+###
+
+# Test timer
+POST http://localhost:8000/timer
+x-api-key: test
+
+{
+    "duration": 60
+}
+
+###
+
+# Test probes
+GET http://localhost:8000/healthz
+
+###
+
+# Test probes
+GET http://localhost:8000/readyz
