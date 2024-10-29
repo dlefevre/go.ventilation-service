@@ -168,7 +168,9 @@ func (s *MQTTManager) entityPayload(entity controller.Enum) map[string]interface
 			"identifiers": []string{
 				config.GetMQTTID(),
 			},
-			"name": config.GetMQTTID(),
+			"name":         config.GetMQTTID(),
+			"manufacturer": "n/a",
+			"model":        "Ventilation Controller",
 		},
 	}
 	return payload
