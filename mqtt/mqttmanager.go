@@ -163,7 +163,6 @@ func (s *MQTTManager) entityPayload(entity controller.Enum) map[string]interface
 		"command_topic":    s.actionTopic,
 		"command_template": entityIDs[entity],
 		"name":             prompts[entity],
-		"retain":           true,
 		"device": map[string]interface{}{
 			"identifiers": []string{
 				config.GetMQTTID(),
