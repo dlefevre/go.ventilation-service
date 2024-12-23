@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/eclipse/paho.golang v0.22.0
-	github.com/labstack/echo/v4 v4.13.2
+	github.com/labstack/echo/v4 v4.13.3
 	github.com/mochi-mqtt/server/v2 v2.6.6
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/viper v1.19.0
@@ -34,7 +34,7 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
-	golang.org/x/net v0.32.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
